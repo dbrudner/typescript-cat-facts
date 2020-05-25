@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import './App.css';
+import {List} from "antd";
 
 // https://cat-fact.herokuapp.com/facts
 
@@ -33,12 +34,14 @@ type CatFact = {
   userUpvoted?: boolean;
 }
 
+type CatFacts = CatFact[]
+
 type CatFactApiResponse = {
-  all: CatFact[];
+  all: CatFacts;
 }
 
 function App() {
-  const [catFacts, setCatFacts] = useState([] as CatFact[]);
+  const [catFacts, setCatFacts] = useState([] as CatFacts);
 
   useEffect(() => {
     (async () => {
@@ -46,24 +49,29 @@ function App() {
       const data: CatFactApiResponse = await response.json();
       setCatFacts(data.all);
     })();
-  }, [])
+  }, []);
 
   return (
     <div className="App">
       <h1>Cat facts</h1>
-      <CatFactList />
+      <CatFactList catFacts={catFacts} />
     </div>
   );
 }
 
 type CatFactListProps = {
-  catFacts: CatFact[]
+  catFacts: CatFacts;
 }
 
 const CatFactList: React.FC<CatFactListProps> = ({ catFacts }) => {
-  return <ul>
-    {catFacts.map(fact => <li>{fact.text}</li>)}
-  </ul>
+  // return <ul>
+  //   {catFacts.map(fact => <li key={fact._id}>{fact.text}</li>)}
+  // </ul>
+
+  return <List
+    dataSource={catFacts}
+    renderItem={fact => <List.Item>{fact.text}</List.Item>}
+  />
 }
 
 export default App;
