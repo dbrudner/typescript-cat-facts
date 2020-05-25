@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
 
 // https://cat-fact.herokuapp.com/facts
@@ -18,55 +18,52 @@ import './App.css';
 //   "userUpvoted": null
 //   }
 
-// Type inference
-
-const myString = "MY_STRING";
-
-const x = myString.indexOf('1');
-
-// function
-
-function addtwoNumbers(a: number, b?: number) {
-    if (!b) {
-        return "no b";
+type CatFact = {
+  _id: string;
+  text: string;
+  type: string;
+  user: {
+    _id: string;
+    name: {
+      first: string;
+      last: string;
     }
-
-    return a + b;
+  },
+  upvotes: number,
+  userUpvoted?: boolean;
 }
 
-const z = addtwoNumbers(1, 2);
-
-// Array
-
-function addNumbers(nums: number[]) {
-    return nums.reduce((total, num) => total + num, 0);
+type CatFactApiResponse = {
+  all: CatFact[];
 }
-
-// object
-
-const person = {
-    name: "dave",
-    age: 22,
-    x: 'string'
-}
-
-type Person = {
-    name: string;
-    age: number;
-}
-
-function getPersonName(person: Person) {
-    return person.age;
-}
-
-getPersonName(person);
 
 function App() {
+  const [catFacts, setCatFacts] = useState([] as CatFact[]);
+
+  useEffect(() => {
+    (async () => {
+      const response = await fetch('https://cat-fact.herokuapp.com/facts');
+      const data: CatFactApiResponse = await response.json();
+      setCatFacts(data.all);
+    })();
+  }, [])
+
   return (
     <div className="App">
       <h1>Cat facts</h1>
+      <CatFactList />
     </div>
   );
+}
+
+type CatFactListProps = {
+  catFacts: CatFact[]
+}
+
+const CatFactList: React.FC<CatFactListProps> = ({ catFacts }) => {
+  return <ul>
+    {catFacts.map(fact => <li>{fact.text}</li>)}
+  </ul>
 }
 
 export default App;
